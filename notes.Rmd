@@ -1,0 +1,27 @@
+---
+title: "TB Dx pathway costs, times notes"
+author: "Nathan Green"
+date: "31/01/2020"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Introduction
+
+How are the costs and times actually calculated?
+
+- Find my original notes, Rmd docs etc
+- What are the best times to use? times to diagnosis, time to dosanjh, time to start treatment, time to last test?
+
+## Joint cost-times model
+
+equations (see BUGS) ...
+
+refs
+
+
+
+

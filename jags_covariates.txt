@@ -1,0 +1,52 @@
+model {
+
+  ## joint likelihood
+
+  for (i in 1:n) {
+
+    c[i] ~ dnorm(phi.c[i], lambda)
+    e[i] ~ dnorm(phi.e[i], tau)
+    
+    phi.c[i] = mu.c + beta*(e[i] - mu.e) + gamma.c[status[i]]
+    phi.e[i] = mu.e + gamma.e[status[i]]
+  }
+
+  lambda = 1/psi
+  psi = sigma2.c - sigma2.e*pow(beta, 2)
+
+
+  ## priors
+
+  mu.c ~ dnorm(0, 0.0001)
+  logsigma.c ~ dunif(-5, 10)
+  sigma.c = exp(logsigma.c)
+  sigma2.c = pow(sigma.c, 2)
+  
+  mu.e ~ dnorm(0, 0.0001)
+  logsigma.e ~ dunif(-5, 10)
+  sigma.e = exp(logsigma.e)
+  sigma2.e = pow(sigma.e, 2)
+  tau = 1/sigma2.e
+  
+  beta ~ dunif(-5, 5)
+  
+  gamma.c[1] = 0
+  gamma.e[1] = 0
+  
+  for (j in 2:3) {
+    gamma.c[j] ~ dnorm(0, 0.0001)
+    gamma.e[j] ~ dnorm(0, 0.0001)
+  }
+  
+  ## predictions
+  
+  for (k in 1:3) {
+  
+    c_pred[k] ~ dnorm(phi.c_pred[k], lambda)
+    e_pred[k] ~ dnorm(phi.e_pred[k], tau)
+  
+    phi.c_pred[k] = mu.c + beta*(e_pred[k] - mu.e) + gamma.c[k]
+    phi.e_pred[k] = mu.e + gamma.e[k]
+  }
+  
+}
