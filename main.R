@@ -170,9 +170,6 @@ for (i in 1:3) {
 }
 
 
-## save output
-
-
 #########
 # plots #
 #########
@@ -257,24 +254,6 @@ library(tidyr)
 #   mutate_if(is.numeric, round, 2)
 
 
-# mean cost, time by grouping
-
-## tbstatus only model
-tribble(~name,   ~'mean cost',           ~'sd cost',           ~'mean time',           ~'sd time',
-        "E;PTB", mean(m.c_pred$`E;PTB`), sd(m.c_pred$`E;PTB`), mean(m.e_pred$`E;PTB`), sd(m.e_pred$`E;PTB`),
-        "PTB",   mean(m.c_pred$`PTB`),   sd(m.c_pred$`PTB`),   mean(m.e_pred$`PTB`),   sd(m.e_pred$`PTB`)) 
-
-## smm & tbstatus
-tribble(~ ssm,       ~'tb status', ~'mean cost',                ~'sd cost',                ~'mean time',                ~'sd time',
-        "Not taken", "E;PTB",      mean(m.c_pred$`E;PTB`[[1]]), sd(m.c_pred$`E;PTB`[[1]]), mean(m.e_pred$`E;PTB`[[1]]), sd(m.e_pred$`E;PTB`[[1]]),
-        "Not taken", "PTB",        mean(m.c_pred$`PTB`[[1]]),   sd(m.c_pred$`PTB`[[1]]),   mean(m.e_pred$`PTB`[[1]]),   sd(m.e_pred$`PTB`[[1]]), 
-        "Negative",  "E;PTB",      mean(m.c_pred$`E;PTB`[[2]]), sd(m.c_pred$`E;PTB`[[2]]), mean(m.e_pred$`E;PTB`[[2]]), sd(m.e_pred$`E;PTB`[[2]]),
-        "Negative",  "PTB",        mean(m.c_pred$`PTB`[[2]]),   sd(m.c_pred$`PTB`[[2]]),   mean(m.e_pred$`PTB`[[2]]),   sd(m.e_pred$`PTB`[[2]]),
-        "Positive",  "E;PTB",      mean(m.c_pred$`E;PTB`[[3]]), sd(m.c_pred$`E;PTB`[[3]]), mean(m.e_pred$`E;PTB`[[3]]), sd(m.e_pred$`E;PTB`[[3]]),
-        "Positive",  "PTB",        mean(m.c_pred$`PTB`[[3]]),   sd(m.c_pred$`PTB`[[3]]),   mean(m.e_pred$`PTB`[[3]]),   sd(m.e_pred$`PTB`[[3]])) 
-
-
-
 #################
 # pathway probs #
 #################
@@ -287,6 +266,14 @@ p_tbl <-
 
 knitr::kable(p_tbl)
 
+# conditional by tb status
+dat %>%
+  count(Smear, EPTBorPTB) %>%
+  ungroup() %>% 
+  group_by(EPTBorPTB) %>% 
+  mutate(p = n/sum(n)) %>% 
+  arrange(EPTBorPTB)
+
 
 ############
 # run jags #
@@ -295,8 +282,11 @@ knitr::kable(p_tbl)
 jagsfile <- "jags_pathprobs.txt"
 
 jags_dat <- 
-  list(N = nrow(dat),
-       X = p_tbl$n)
+  list(
+    N1 = sum(p_tbl$n[1:3]),
+    N2 = sum(p_tbl$n[4:6]),
+    X1 = p_tbl$n[1:3],
+    X2 = p_tbl$n[4:6])
 
 # 1: blank
 # 2: EPTB;PTB
@@ -306,7 +296,8 @@ jags_dat <-
 # 2: NEGATIVE
 # 3: POSITIVE
 
-params <- c("prob")
+params <- c("p_eptb",
+            "p_ptb")
 
 # inits <- c(mu.c = 6,
 #            sigma.e = 1)

@@ -106,7 +106,7 @@ lines(density(as.numeric(m.c_pred$`PTB`[[3]])), col = "blue")
 ```{r}
 load("data/out.ls_pathprobs.RData")
 
-probs <- out_pathprobs$sims.list$prob
+probs <- out_pathprobs$sims.list
 ```
 
 ```{r, message=F, warning=F, echo=F}
@@ -116,13 +116,13 @@ library(reshape2)
 library(tidyr)
 
 ## smm & tbstatus
-tribble(~ ssm,       ~'tb status', ~'mean prob',    ~'sd prob',    ~'mean cost',                ~'sd cost',                ~'mean time',                ~'sd time',
-        "Not taken", "E;PTB",      mean(probs[,1]), sd(probs[,1]), mean(m.c_pred$`E;PTB`[[1]]), sd(m.c_pred$`E;PTB`[[1]]), mean(m.e_pred$`E;PTB`[[1]]), sd(m.e_pred$`E;PTB`[[1]]),
-        "Not taken", "PTB",        mean(probs[,2]), sd(probs[,2]), mean(m.c_pred$`PTB`[[1]]),   sd(m.c_pred$`PTB`[[1]]),   mean(m.e_pred$`PTB`[[1]]),   sd(m.e_pred$`PTB`[[1]]), 
-        "Negative",  "E;PTB",      mean(probs[,3]), sd(probs[,3]), mean(m.c_pred$`E;PTB`[[2]]), sd(m.c_pred$`E;PTB`[[2]]), mean(m.e_pred$`E;PTB`[[2]]), sd(m.e_pred$`E;PTB`[[2]]),
-        "Negative",  "PTB",        mean(probs[,4]), sd(probs[,4]), mean(m.c_pred$`PTB`[[2]]),   sd(m.c_pred$`PTB`[[2]]),   mean(m.e_pred$`PTB`[[2]]),   sd(m.e_pred$`PTB`[[2]]),
-        "Positive",  "E;PTB",      mean(probs[,5]), sd(probs[,5]), mean(m.c_pred$`E;PTB`[[3]]), sd(m.c_pred$`E;PTB`[[3]]), mean(m.e_pred$`E;PTB`[[3]]), sd(m.e_pred$`E;PTB`[[3]]),
-        "Positive",  "PTB",        mean(probs[,6]), sd(probs[,6]), mean(m.c_pred$`PTB`[[3]]),   sd(m.c_pred$`PTB`[[3]]),   mean(m.e_pred$`PTB`[[3]]),   sd(m.e_pred$`PTB`[[3]])) %>%
+tribble(~ ssm,       ~'tb status', ~'mean prob',           ~'sd prob',           ~'mean cost',                ~'sd cost',                ~'mean time',                ~'sd time',
+        "Not taken", "E;PTB",      mean(probs$p_eptb[,1]), sd(probs$p_eptb[,1]), mean(m.c_pred$`E;PTB`[[1]]), sd(m.c_pred$`E;PTB`[[1]]), mean(m.e_pred$`E;PTB`[[1]]), sd(m.e_pred$`E;PTB`[[1]]),
+        "Not taken", "PTB",        mean(probs$p_ptb[,1]),  sd(probs$p_ptb[,1]),  mean(m.c_pred$`PTB`[[1]]),   sd(m.c_pred$`PTB`[[1]]),   mean(m.e_pred$`PTB`[[1]]),   sd(m.e_pred$`PTB`[[1]]), 
+        "Negative",  "E;PTB",      mean(probs$p_eptb[,2]), sd(probs$p_eptb[,2]), mean(m.c_pred$`E;PTB`[[2]]), sd(m.c_pred$`E;PTB`[[2]]), mean(m.e_pred$`E;PTB`[[2]]), sd(m.e_pred$`E;PTB`[[2]]),
+        "Negative",  "PTB",        mean(probs$p_ptb[,2]),  sd(probs$p_ptb[,2]),  mean(m.c_pred$`PTB`[[2]]),   sd(m.c_pred$`PTB`[[2]]),   mean(m.e_pred$`PTB`[[2]]),   sd(m.e_pred$`PTB`[[2]]),
+        "Positive",  "E;PTB",      mean(probs$p_eptb[,3]), sd(probs$p_ptb[,3]),  mean(m.c_pred$`E;PTB`[[3]]), sd(m.c_pred$`E;PTB`[[3]]), mean(m.e_pred$`E;PTB`[[3]]), sd(m.e_pred$`E;PTB`[[3]]),
+        "Positive",  "PTB",        mean(probs$p_ptb[,3]),  sd(probs$p_ptb[,3]),  mean(m.c_pred$`PTB`[[3]]),   sd(m.c_pred$`PTB`[[3]]),   mean(m.e_pred$`PTB`[[3]]),   sd(m.e_pred$`PTB`[[3]])) %>%
   mutate_if(is.numeric, round, 2) %>% 
   kable()
 ```

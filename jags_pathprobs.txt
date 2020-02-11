@@ -2,23 +2,32 @@
 model{
 
   # likelihood
-
-  X[1:6] ~ dmulti(prob[1:6], N)
+  # conditional on TB status
   
-  # seting first probability as the baseline/anchor   
-  phi[1]  <- 1
-  prob[1] <- 1/sum(phi[1:6])
+  X1[1:3] ~ dmulti(p_eptb[1:3], N1)
+  X2[1:3] ~ dmulti(p_ptb[1:3], N2)
   
-  # tranforming to probabilities
-  for (c in 2:6) {
-      
-    log(phi[c]) <- beta[c]
-    prob[c] <- phi[c]/sum(phi[1:6])
+  # seting first probability as baseline
+  phi1[1]  <- 1
+  p_eptb[1] <- 1/sum(phi1[1:3])
+  
+  for (c in 2:3) {
+    log(phi1[c]) <- beta1[c]
+    p_eptb[c] <- phi1[c]/sum(phi1[1:3])
   }
-      
+   
+  phi2[1]  <- 1
+  p_ptb[1] <- 1/sum(phi2[1:3])
+  
+  for (c in 2:3) {
+    log(phi2[c]) <- beta2[c]
+    p_ptb[c] <- phi2[c]/sum(phi2[1:3])
+  }
+  
+  
   # vague priors
-  for (c in 2:6) {
- 
-    beta[c] ~ dnorm(0, 1.0E-6)
+  for (c in 2:3) {
+    beta1[c] ~ dnorm(0, 1.0E-6)
+    beta2[c] ~ dnorm(0, 1.0E-6)
   }
 }
