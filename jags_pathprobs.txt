@@ -1,0 +1,24 @@
+
+model{
+
+  # likelihood
+
+  X[1:6] ~ dmulti(prob[1:6], N)
+  
+  # seting first probability as the baseline/anchor   
+  phi[1]  <- 1
+  prob[1] <- 1/sum(phi[1:6])
+  
+  # tranforming to probabilities
+  for (c in 2:6) {
+      
+    log(phi[c]) <- beta[c]
+    prob[c] <- phi[c]/sum(phi[1:6])
+  }
+      
+  # vague priors
+  for (c in 2:6) {
+ 
+    beta[c] ~ dnorm(0, 1.0E-6)
+  }
+}

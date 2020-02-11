@@ -1,0 +1,60 @@
+model {
+
+  ## likelihood
+
+  for (i in 1:n) {
+
+    c[i] ~ dnorm(phi.c[i], lambda)
+    e[i] ~ dnorm(phi.e[i], tau)
+    
+    phi.c[i] = mu.c + gamma.c[tbstatus[i]] + beta.c[ssm[i]]
+    phi.e[i] = mu.e + gamma.e[tbstatus[i]] + beta.e[ssm[i]]
+  }
+
+
+  ## priors
+
+  mu.c ~ dnorm(0, 0.0001)
+
+  logsigma.c ~ dunif(-5, 10)
+  sigma.c = exp(logsigma.c)
+  sigma2.c = pow(sigma.c, 2)
+  lambda = 1/sigma2.c
+  
+  mu.e ~ dnorm(0, 0.0001)
+
+  logsigma.e ~ dunif(-5, 10)
+  sigma.e = exp(logsigma.e)
+  sigma2.e = pow(sigma.e, 2)
+  tau = 1/sigma2.e
+  
+  gamma.c[1] = 0
+  gamma.e[1] = 0
+  
+  for (j in 2:3) {
+    gamma.c[j] ~ dnorm(0, 0.0001)
+    gamma.e[j] ~ dnorm(0, 0.0001)
+  }
+
+  beta.c[1] = 0
+  beta.e[1] = 0
+  
+  for (j in 2:3) {
+    beta.c[j] ~ dnorm(0, 0.0001)
+    beta.e[j] ~ dnorm(0, 0.0001)
+  }
+  
+  ## predictions
+  
+  for (k in 1:3) {
+    for (s in 1:3) {
+  
+      c_pred[k,s] ~ dnorm(phi.c_pred[k,s], lambda)
+      e_pred[k,s] ~ dnorm(phi.e_pred[k,s], tau)
+  
+      phi.c_pred[k,s] = mu.c + gamma.c[k] + beta.c[s]
+      phi.e_pred[k,s] = mu.e + gamma.e[k] + beta.e[s]
+    }
+  }
+  
+}
