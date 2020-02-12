@@ -1,5 +1,5 @@
 ---
-title: "Total cost and time to treatment initiation for suspected TB patients"
+title: "Pathway probabilities, total cost and time to treatment initiation for suspected TB patients"
 author: "Nathan Green"
 date: "07/02/2020"
 output: pdf_document
@@ -11,9 +11,45 @@ knitr::opts_chunk$set(echo = TRUE)
 
 ## Introduction
 
+Posterior distributions are generated to provide DES model input parameters.
+
 ## Model
 
+### Cost and time
+
 Independent Bayesian linear regressions on cost and time to starting treatment with covariates of sputum smear results ('Not taken', 'Negative', 'Positive') and TB status (missing, 'E;PTB', 'PTB').
+
+For individual $i$,
+
+$$
+c_i \sim N(\phi^c_i, \lambda); \;\;
+t_i \sim N(\phi^t_i, \tau)
+$$
+
+$$
+\phi^c_i = \mu_c + \gamma^c_{tb_i} + \beta^c_{ssm_i}; \;\;
+\phi^t_i = \mu_t + \gamma^t_{tb_i} + \beta^t_{ssm_i}
+$$
+
+We used uninformative priors.
+So, the posterior distribution of the expected cost and time are
+
+$$
+\hat{\phi}^c_{tb, ssm} = \hat{\mu_t} + \hat{\gamma}^c_{tb} + \hat{\beta}^c_{ssm}; \;\;
+\hat{\phi}^t_{tb, ssm} = \hat{\mu_t} + \hat{\gamma}^t_{tb} + \hat{\beta}^t_{ssm}.
+$$
+
+### Pathway probabilities
+
+Separate multinomial models were fit to counts of sputum smear microscopy results for pulmonary only ($p$), and both pulmonary and extra-pulmonary ($ep$) cases.
+
+$$
+X_{ep} \sim Multi(p_{ep}, N_{ep}); \;\;
+X_p \sim Multi(p_p, N_p)
+$$
+
+The posterior distributions for $p_{ep}, p_p$ are reported.
+
 
 ## Data
 
@@ -103,10 +139,21 @@ lines(density(as.numeric(m.c_pred$`PTB`[[2]])), col = "red")
 lines(density(as.numeric(m.c_pred$`PTB`[[3]])), col = "blue")
 ```
 
-```{r}
-load("data/out.ls_pathprobs.RData")
 
+```{r, message=F, warning=F, echo=F}
+
+load("data/out.ls_pathprobs.RData")
 probs <- out_pathprobs$sims.list
+
+par(mfrow = c(1,2))
+
+plot(density(as.numeric(probs$p_ptb[,1])), ylim = c(0, 20), xlim = c(0, 1), main = "SSM prob, PTB")
+lines(density(as.numeric(probs$p_ptb[,2])), col = "red")
+lines(density(as.numeric(probs$p_ptb[,3])), col = "blue")
+
+plot(density(as.numeric(probs$p_eptb[,1])), ylim = c(0, 20), xlim = c(0, 1), main = "SSM prob, E;PTB")
+lines(density(as.numeric(probs$p_eptb[,2])), col = "red")
+lines(density(as.numeric(probs$p_eptb[,3])), col = "blue")
 ```
 
 ```{r, message=F, warning=F, echo=F}
@@ -127,4 +174,3 @@ tribble(~ ssm,       ~'tb status', ~'mean prob',           ~'sd prob',          
   kable()
 ```
 
-# References
